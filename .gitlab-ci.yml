@@ -1,38 +1,65 @@
-image: java:8-jdk
-
+default:
+  image: openjdk:8
+ 
+variables:
+  GIT_STRATEGY: clone
+  # Make sure that you get tags from git repository otherwise the release
+  # Gradle plugin will not be able to create the next version number:
+  GIT_FETCH_EXTRA_FLAGS: --tags 
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+ 
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+ 
 stages:
   - build
-  - test
   - deploy
-
-before_script:
-#  - echo `pwd` # debug
-#  - echo "$CI_BUILD_NAME, $CI_BUILD_REF_NAME $CI_BUILD_STAGE" # debug
-  - export GRADLE_USER_HOME=`pwd`/.gradle
-
-cache:
-  paths:
-    - .gradle/wrapper
-    - .gradle/caches
-
-build:
+ 
+build_job:
   stage: build
   script:
-    - ./gradlew assemble
-  artifacts:
-    paths:
-      - build/libs/*.jar
-    expire_in: 1 week
-  only:
-    - master
-
-test:
-  stage: test
-  script:
-    - ./gradlew check
-
-deploy:
+    - ./gradlew build
+ 
+publish_job:
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - ./gradlew createRelease -Prelease.disableChecks
+    - ./gradlew publish
+    - echo "TAG=$(./gradlew currentVersion -q -Prelease.quiet)" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+ 
+release_job:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: publish_job
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#   script:
+#     - echo "Releasing $TAG"
+#   release:
+#     name: 'Release v$TAG'
+#     description: $CI_COMMIT_MESSAGE
+#     tag_name: v$TAG
+#     ref: $CI_COMMIT_SHA
+#     assets:
+#       links:
+#         - name: 'Installation zip'
+#           url: "https://...your Nexus.../service/local/artifact/maven/redirect?g=com.example&a=example-app&v=$TAG&r=releases&e=zip"
+#           image: java:8-jdk
+
+
+# deploy:
+#   stage: deploy
   script:
     - ./deploy
 
