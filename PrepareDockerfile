@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17-jdk-focal
+
+RUN apt-get update
+RUN apt-get install -y software-properties-common git ca-certificates curl gnupg lsb-release docker.io
+
+ENV GRADLE_VERSION 7.5
+COPY gradle /home/gradle/gradle
+COPY gradlew /home/gradle/gradlew
+RUN /home/gradle/gradlew -version
