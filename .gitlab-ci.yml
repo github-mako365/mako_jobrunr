@@ -1,67 +1,42 @@
-default:
-  image: openjdk:8
- 
-variables:
-  GIT_STRATEGY: clone
-  # Make sure that you get tags from git repository otherwise the release
-  # Gradle plugin will not be able to create the next version number:
-  GIT_FETCH_EXTRA_FLAGS: --tags 
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
- 
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Gradle.gitlab-ci.yml
+
+# This is the Gradle build system for JVM applications
+# https://gradle.org/
+# https://github.com/gradle/gradle
+
+image: gradle:7.5.1-jdk17-alpine
+
 before_script:
-  - export GRADLE_USER_HOME=`pwd`/.gradle
- 
-stages:
-  - build
-  - deploy
- 
-build_job:
+  - GRADLE_USER_HOME="$(pwd)/.gradle"
+  - export GRADLE_USER_HOME
+
+build:
   stage: build
-  script:
-    - ./gradlew build
- 
-publish_job:
+  script: ./gradlew clean build -x test
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
+
+
+test:
+  stage: test
+  script: gradle check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
+
+deploy:
   stage: deploy
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    - ./gradlew createRelease -Prelease.disableChecks
-    - ./gradlew publish
-    - echo "TAG=$(./gradlew currentVersion -q -Prelease.quiet)" >> variables.env
-  artifacts:
-    reports:
-      dotenv: variables.env
- 
-release_job:
-  stage: deploy
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  needs:
-    - job: publish_job
-      artifacts: true
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#   script:
-#     - echo "Releasing $TAG"
-#   release:
-#     name: 'Release v$TAG'
-#     description: $CI_COMMIT_MESSAGE
-#     tag_name: v$TAG
-#     ref: $CI_COMMIT_SHA
-#     assets:
-#       links:
-#         - name: 'Installation zip'
-#           url: "https://...your Nexus.../service/local/artifact/maven/redirect?g=com.example&a=example-app&v=$TAG&r=releases&e=zip"
-#           image: java:8-jdk
-
-
-# deploy:
-#   stage: deploy
-  script:
-    - ./deploy
-
-after_script:
-  - echo "End CI"
+  script: echo "Define your deployment script!"
+  environment: production
