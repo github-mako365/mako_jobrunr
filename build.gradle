@@ -24,7 +24,7 @@ publishing {
         maven {
             url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven"
             credentials(HttpHeaderCredentials) {
-                name = "REPLACE_WITH_TOKEN_NAME"
+                name = "jobrunr"
                 value = gitLabPrivateToken
             }
             authentication {
