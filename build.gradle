@@ -54,7 +54,7 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
         mavenCentral()
         mavenLocal()
         maven {
-            url "/api/v4/groups/m365/-/packages/maven"
+            url "/api/v4/projects/mako_jobrunr/packages/maven"
             name "GitLab"
             credentials(HttpHeaderCredentials) {
                 name = 'Job-Token'
