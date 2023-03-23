@@ -53,6 +53,17 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
     repositories {
         mavenCentral()
         mavenLocal()
+        maven {
+            url "${CI_API_V4_URL}/groups/m365/-/packages/maven"
+            name "GitLab"
+            credentials(HttpHeaderCredentials) {
+                name = 'Job-Token'
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
     }
 
     dependencies {
