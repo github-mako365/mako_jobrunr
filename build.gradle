@@ -8,7 +8,7 @@ plugins {
 }
 
 nexusPublishing {
-    packageGroup = "jobrunr"
+    //packageGroup = "org.jobrunr"
     repositories {
         sonatype()
     }
@@ -35,9 +35,9 @@ publishing {
     }
 }
 
-group = 'jobrunr'
+//group = 'org.jobrunr'
 subprojects {
-    group = 'jobrunr'
+    //group = 'org.jobrunr'
     version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
 }
 
