@@ -7,12 +7,12 @@ plugins {
     id 'maven-publish'
 }
 
-nexusPublishing {
-    //packageGroup = "org.jobrunr"
-    repositories {
-        sonatype()
-    }
-}
+// nexusPublishing {
+//     packageGroup = "org.jobrunr"
+//     repositories {
+//         sonatype()
+//     }
+// }
 
 publishing {
     publications {
@@ -22,8 +22,10 @@ publishing {
     }
     repositories {
         maven {
+            projectId = System.getenv("CI_PROJECT_ID")
             version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
-            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven"
+            name = "GitLab"
+            url "https://gitlab.com/api/v4/projects/$projectId/packages/maven"
             credentials(HttpHeaderCredentials) {
                 name = "Private-Token"
                 value = gitLabPrivateToken
@@ -35,9 +37,9 @@ publishing {
     }
 }
 
-//group = 'org.jobrunr'
+group = 'org.jobrunr'
 subprojects {
-    //group = 'org.jobrunr'
+    group = 'org.jobrunr'
     version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
 }
 
@@ -78,7 +80,8 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
         mavenCentral()
         mavenLocal()
         maven {
-            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven/"
+            projectId = System.getenv("CI_PROJECT_ID")
+            url "https://gitlab.com/api/v4/projects/$projectId/packages/maven/"
             name "GitLab"
             credentials(HttpHeaderCredentials) {
                 name = 'Job-Token'
