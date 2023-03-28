@@ -77,7 +77,8 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
         mavenCentral()
         mavenLocal()
         maven {
-            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven"
+            version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
+            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/"
             name "GitLab"
             credentials(HttpHeaderCredentials) {
                 name = 'Job-Token'
