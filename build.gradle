@@ -82,7 +82,7 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
     //             header(HttpHeaderAuthentication)
     //         }
     //     }
-    // }
+    }
 
     dependencies {
         implementation platform(project(':platform'))
