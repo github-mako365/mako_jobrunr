@@ -7,6 +7,12 @@ plugins {
     id 'maven-publish'
 }
 
+group = 'org.jobrunr'
+subprojects {
+    group = 'org.jobrunr'
+    version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
+}
+
 publishing {
     publications {
         library(MavenPublication) {
@@ -15,8 +21,6 @@ publishing {
     }
     repositories {
         maven {
-            version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
-            name = "GitLab"
             url "https://gitlab.com/api/v4/projects/44506810/packages/maven"
             credentials(HttpHeaderCredentials) {
                 name = "Private-Token"
@@ -27,12 +31,6 @@ publishing {
             }
         }
     }
-}
-
-group = 'org.jobrunr'
-subprojects {
-    group = 'org.jobrunr'
-    version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
 }
 
 def isNonStable = { String version ->
@@ -68,20 +66,19 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    // repositories {
-    //     mavenCentral()
-    //     mavenLocal()
-    //     maven {
-    //         url "https://gitlab.com/api/v4/projects/44506810/packages/maven/"
-    //         name "GitLab"
-    //         credentials(HttpHeaderCredentials) {
-    //             name = 'Job-Token'
-    //             value = System.getenv("CI_JOB_TOKEN")
-    //         }
-    //         authentication {
-    //             header(HttpHeaderAuthentication)
-    //         }
-    //     }
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://gitlab.com/api/v4/projects/44506810/packages/maven/"
+            credentials(HttpHeaderCredentials) {
+                name = 'Job-Token'
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
     }
 
     dependencies {
