@@ -23,7 +23,7 @@ publishing {
     repositories {
         maven {
             version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
-            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages"
+            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven"
             credentials(HttpHeaderCredentials) {
                 name = "Private-Token"
                 value = gitLabPrivateToken
