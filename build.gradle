@@ -22,7 +22,8 @@ publishing {
     }
     repositories {
         maven {
-            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven"
+            version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
+            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages"
             credentials(HttpHeaderCredentials) {
                 name = "Private-Token"
                 value = gitLabPrivateToken
@@ -77,8 +78,7 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
         mavenCentral()
         mavenLocal()
         maven {
-            version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
-            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/"
+            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven/"
             name "GitLab"
             credentials(HttpHeaderCredentials) {
                 name = 'Job-Token'
