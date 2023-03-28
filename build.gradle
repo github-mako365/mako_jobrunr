@@ -22,10 +22,9 @@ publishing {
     }
     repositories {
         maven {
-            projectId = System.getenv("CI_PROJECT_ID")
             version = System.getenv('DRONE_TAG')?.replace("v", "") ?: "v1.0.0-SNAPSHOT".replace("v", "")
             name = "GitLab"
-            url "https://gitlab.com/api/v4/projects/$projectId/packages/maven"
+            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven"
             credentials(HttpHeaderCredentials) {
                 name = "Private-Token"
                 value = gitLabPrivateToken
@@ -80,8 +79,7 @@ configure(subprojects.findAll {! ['platform'].contains(it.name)}) {
         mavenCentral()
         mavenLocal()
         maven {
-            projectId = System.getenv("CI_PROJECT_ID")
-            url "https://gitlab.com/api/v4/projects/$projectId/packages/maven/"
+            url "https://gitlab.com/api/v4/projects/mako_jobrunr/packages/maven/"
             name "GitLab"
             credentials(HttpHeaderCredentials) {
                 name = 'Job-Token'
