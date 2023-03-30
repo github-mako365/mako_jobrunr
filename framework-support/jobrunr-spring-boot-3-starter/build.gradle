@@ -1,3 +1,4 @@
+/*
 import java.text.SimpleDateFormat
 
 plugins {
@@ -133,4 +134,4 @@ signing {
 
 sonar {
     skipProject = true
-}
+}*/
