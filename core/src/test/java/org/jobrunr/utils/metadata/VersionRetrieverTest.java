@@ -13,7 +13,7 @@ class VersionRetrieverTest {
     void jobRunrVersion() {
         assertThat(VersionRetriever.getVersion(JobRunr.class))
                 .satisfiesAnyOf(
-                        val -> assertThat(val).isEqualTo("1.0.1"),
+                        val -> assertThat(val).isEqualTo("1.0.0-SNAPSHOT"),
                         val -> assertThat(val).matches("(\\d)+.(\\d)+.(\\d)+(-.*)?")
                 );
     }
