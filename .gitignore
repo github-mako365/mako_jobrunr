@@ -85,7 +85,7 @@ fabric.properties
 .mtj.tmp/
 
 # Package Files #
-#*.jar
+*.jar
 *.war
 *.nar
 *.ear
@@ -98,7 +98,7 @@ hs_err_pid*
 
 ### Gradle ###
 .gradle
-#build/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -113,7 +113,7 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 ### Gradle Patch ###
-#**/build/
+**/build/
 
 # End of https://www.gitignore.io/api/java,gradle,intellij
 

@@ -27,7 +27,6 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure-processor/3.0.1/e89167efe152c6dabcd101cdaa291453ec07f28f/spring-boot-autoconfigure-processor-3.0.1.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.0.1/f14786a40bdc99cbed57e924a4c12e43abc95dd/spring-boot-configuration-processor-3.0.1.jar" />
         </processorPath>
-        <module name="JobRunr.framework-support.jobrunr-spring-boot-3-starter.main" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
@@ -79,6 +78,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
+      <module name="JobRunr.framework-support.jobrunr-spring-boot-3-starter" target="17" />
+      <module name="JobRunr.framework-support.jobrunr-spring-boot-3-starter.main" target="17" />
+      <module name="JobRunr.framework-support.jobrunr-spring-boot-3-starter.test" target="17" />
       <module name="JobRunr.framework-support.jobrunr-spring-boot-native.test" target="11" />
       <module name="JobRunr.framework-support.jobrunr-spring-boot-starter.test" target="11" />
       <module name="JobRunr.language-support.jobrunr-kotlin-14-support.test" target="11" />
