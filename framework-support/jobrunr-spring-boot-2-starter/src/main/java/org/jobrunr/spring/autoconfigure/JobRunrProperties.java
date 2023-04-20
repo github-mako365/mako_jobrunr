@@ -247,6 +247,11 @@ public class JobRunrProperties {
         private Integer pollIntervalInSeconds = 15;
 
         /**
+         * Timeout until a job is marked as dead while long execution
+         */
+        private Integer pollIntervalToTimeoutMultiplier = 10;
+
+        /**
          * Sets the maximum number of jobs to update from scheduled to enqueued state per polling interval.
          */
         private Integer scheduledJobsRequestSize = 1000;
@@ -310,6 +315,14 @@ public class JobRunrProperties {
 
         public void setPollIntervalInSeconds(Integer pollIntervalInSeconds) {
             this.pollIntervalInSeconds = pollIntervalInSeconds;
+        }
+
+        public Integer getPollIntervalToTimeoutMultiplier() {
+            return pollIntervalToTimeoutMultiplier;
+        }
+
+        public void setPollIntervalToTimeoutMultiplier(Integer pollIntervalToTimeoutMultiplier){
+            this.pollIntervalToTimeoutMultiplier = pollIntervalToTimeoutMultiplier;
         }
 
         public Integer getScheduledJobsRequestSize() {
