@@ -15,6 +15,7 @@ import static org.jobrunr.utils.StringUtils.isNullOrEmpty;
 public class BackgroundJobServerConfiguration {
 
     public static final int DEFAULT_POLL_INTERVAL_IN_SECONDS = 15;
+    public static final int DEFAULT_POLL_INTERVAL_TO_TIMEOUT_MULTIPLIER = 4;
     public static final int DEFAULT_PAGE_REQUEST_SIZE = 1000;
     public static final Duration DEFAULT_DELETE_SUCCEEDED_JOBS_DURATION = Duration.ofHours(36);
     public static final Duration DEFAULT_PERMANENTLY_DELETE_JOBS_DURATION = Duration.ofHours(72);
@@ -23,6 +24,7 @@ public class BackgroundJobServerConfiguration {
     private int orphanedJobsRequestSize = DEFAULT_PAGE_REQUEST_SIZE;
     private int succeededJobsRequestSize = DEFAULT_PAGE_REQUEST_SIZE;
     private int pollIntervalInSeconds = DEFAULT_POLL_INTERVAL_IN_SECONDS;
+    private int pollIntervalToTimeoutMultiplier = DEFAULT_POLL_INTERVAL_TO_TIMEOUT_MULTIPLIER;
     private String name = getHostName();
     private Duration deleteSucceededJobsAfter = DEFAULT_DELETE_SUCCEEDED_JOBS_DURATION;
     private Duration permanentlyDeleteDeletedJobsAfter = DEFAULT_PERMANENTLY_DELETE_JOBS_DURATION;
@@ -65,6 +67,19 @@ public class BackgroundJobServerConfiguration {
         if (pollIntervalInSeconds < 5)
             throw new IllegalArgumentException("The pollIntervalInSeconds can not be smaller than 5 - otherwise it will cause to much load on your SQL/noSQL datastore.");
         this.pollIntervalInSeconds = pollIntervalInSeconds;
+        return this;
+    }
+
+    /**
+     * Allows to set the pollIntervalToTimeoutMultiplier for the BackgroundJobServer
+     *
+     * @param timeoutMultiplier the Multiplier to determine the timeout duration from the poll interval
+     * @return the same configuration instance which provides a fluent api
+     */
+    public BackgroundJobServerConfiguration andPollIntervalToTimeoutMultiplier(int timeoutMultiplier) {
+        if (timeoutMultiplier < 1)
+            throw new IllegalArgumentException("The timeout multiplier can not be smaller than 1.");
+        this.pollIntervalToTimeoutMultiplier = timeoutMultiplier;
         return this;
     }
 
@@ -178,6 +193,10 @@ public class BackgroundJobServerConfiguration {
 
     public int getPollIntervalInSeconds() {
         return pollIntervalInSeconds;
+    }
+
+    public int getPollIntervalToTimeoutMultiplier() {
+        return pollIntervalToTimeoutMultiplier;
     }
 
     public Duration getDeleteSucceededJobsAfter() {
