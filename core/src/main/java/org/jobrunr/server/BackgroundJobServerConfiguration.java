@@ -23,6 +23,7 @@ public class BackgroundJobServerConfiguration {
     private int orphanedJobsRequestSize = DEFAULT_PAGE_REQUEST_SIZE;
     private int succeededJobsRequestSize = DEFAULT_PAGE_REQUEST_SIZE;
     private int pollIntervalInSeconds = DEFAULT_POLL_INTERVAL_IN_SECONDS;
+    private Boolean updateCheckEnabled = true;
     private String name = getHostName();
     private Duration deleteSucceededJobsAfter = DEFAULT_DELETE_SUCCEEDED_JOBS_DURATION;
     private Duration permanentlyDeleteDeletedJobsAfter = DEFAULT_PERMANENTLY_DELETE_JOBS_DURATION;
@@ -178,6 +179,14 @@ public class BackgroundJobServerConfiguration {
 
     public int getPollIntervalInSeconds() {
         return pollIntervalInSeconds;
+    }
+
+    public Boolean getUpdateCheckEnabled() {
+        return updateCheckEnabled;
+    }
+
+    public void setUpdateCheckEnabled(Boolean updateCheckEnabled) {
+        this.updateCheckEnabled = updateCheckEnabled;
     }
 
     public Duration getDeleteSucceededJobsAfter() {
