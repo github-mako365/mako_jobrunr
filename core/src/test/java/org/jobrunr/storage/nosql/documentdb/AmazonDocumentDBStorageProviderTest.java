@@ -45,8 +45,8 @@ public class AmazonDocumentDBStorageProviderTest extends StorageProviderTest {
     }
 
     private MongoClient mongoClient() {
-        String username = "jobrunruser";
-        String password = "jobrunruser";
+        String username = "jobrunr";
+        String password = "jobrunr123";
 
         String clusterEndpoint = "127.0.0.1:27017";
 
@@ -61,6 +61,7 @@ public class AmazonDocumentDBStorageProviderTest extends StorageProviderTest {
             mongoClient = MongoClients.create(
                     MongoClientSettings.builder()
                             .applyToClusterSettings(builder -> builder.hosts(Arrays.asList(serverAddress)))
+                            .retryWrites(false)
                             .credential(credential)
                             .codecRegistry(codecRegistry)
                             .build());
