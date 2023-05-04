@@ -21,23 +21,23 @@ public class M007_UpdateJobsCollectionReplaceIndices extends MongoMigration {
 
         MongoCollection<Document> jobCollection = jobrunrDatabase.getCollection(collectionName, Document.class);
 
-        jobCollection.dropIndexes();
+        dropIndexes(jobCollection);
 
         // idx for recurring jobs that need to be fetched by JobZooKeeper ProcessRecurringJobsTask
-        jobCollection.createIndex(
+        createIndex(jobCollection,
                 compoundIndex(ascending(FIELD_STATE), ascending(FIELD_RECURRING_JOB_ID)),
                 new IndexOptions().name("recurringJobPartialIdx").partialFilterExpression(exists(FIELD_RECURRING_JOB_ID)));
 
         // idx for scheduled jobs that need to be fetched by JobZooKeeper ProcessScheduledJobsTask
-        jobCollection.createIndex(
+        createIndex(jobCollection,
                 compoundIndex(ascending(FIELD_STATE), ascending(FIELD_SCHEDULED_AT)),
                 new IndexOptions().name("scheduledPartialIdx").partialFilterExpression(eq(FIELD_STATE, StateName.SCHEDULED.name())));
 
         // idx for UI by state and DistinctJobSignatures
-        jobCollection.createIndex(
+        createIndex(jobCollection,
                 compoundIndex(ascending(FIELD_STATE), ascending(FIELD_UPDATED_AT)),
                 new IndexOptions().name("jobsByStateUpdatedAtAscIdx"));
-        jobCollection.createIndex(
+        createIndex(jobCollection,
                 compoundIndex(ascending(FIELD_STATE), descending(FIELD_UPDATED_AT)),
                 new IndexOptions().name("jobsByStateUpdatedAtDescIdx"));
     }
