@@ -55,6 +55,7 @@ build:
 
 deploy:
   image: gradle:7-jdk11-alpine
+  stage: deploy
   script:
     - 'gradle publish'
   only:
