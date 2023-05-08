@@ -18,7 +18,30 @@ before_script:
   - GRADLE_USER_HOME="$(pwd)/.gradle"
   - export GRADLE_USER_HOME
 
+build dashboard frontend:
+  before_script:
+    - cd ${CI_PROJECT_DIR}/core/src/main/resources/org/jobrunr/dashboard/frontend
+    - export NODE_OPTIONS=--openssl-legacy-provider
+  image: node:latest
+  stage: build
+  script:
+    - yarn && yarn build
+  artifacts:
+    untracked: true
+    expire_in: never
+    public: false
+  cache:
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - .yarn-cache/
+  tags:
+    - docker
+
 build:
+  before_script:
+    - cd ${CI_PROJECT_DIR}
   stage: build
   script: ./gradlew clean build -x test
   cache:
@@ -27,6 +50,8 @@ build:
     paths:
       - build
       - .gradle
+  needs:
+    - job: build dashboard frontend
 
 deploy:
   image: gradle:7-jdk11-alpine
