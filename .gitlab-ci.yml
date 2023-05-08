@@ -50,8 +50,8 @@ build:
     paths:
       - build
       - .gradle
-    needs:
-      - job: build dashboard frontend
+  needs:
+    - job: build dashboard frontend
 
 deploy:
   image: gradle:7-jdk11-alpine
