@@ -1,6 +1,5 @@
 package org.jobrunr.jobs.details;
 
-import io.github.artsok.RepeatedIfExceptionsTest;
 import org.assertj.core.api.Assertions;
 import org.jobrunr.JobRunrException;
 import org.jobrunr.jobs.JobDetails;
@@ -20,6 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.objectweb.asm.util.Textifier;
 
 import java.io.File;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -30,7 +32,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -42,7 +43,9 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.jobrunr.JobRunrAssertions.assertThat;
+import static org.jobrunr.jobs.details.JobDetailsGeneratorUtils.toFQResource;
 import static org.jobrunr.stubs.TestService.Task.PROGRAMMING;
 import static org.jobrunr.utils.SleepUtils.sleep;
 import static org.jobrunr.utils.StringUtils.substringAfterLast;
@@ -71,6 +74,10 @@ public abstract class AbstractJobDetailsGeneratorTest {
         return jobDetailsGenerator.toJobDetails(job);
     }
 
+    protected <T> JobDetails toJobDetails(T itemFromStream, JobLambdaFromStream<T> jobLambda) {
+        return jobDetailsGenerator.toJobDetails(itemFromStream, jobLambda);
+    }
+
     protected JobDetails toJobDetails(IocJobLambda<TestService> iocJobLambda) {
         return jobDetailsGenerator.toJobDetails(iocJobLambda);
     }
@@ -78,10 +85,10 @@ public abstract class AbstractJobDetailsGeneratorTest {
     @Test
     @Disabled("for debugging")
     void logByteCode() {
-        //String name = AbstractJobDetailsGeneratorTest.class.getName();
-        //String location = new File(".").getAbsolutePath() + "/build/classes/java/test/" + toFQResource(name) + ".class";
+        String name = AbstractJobDetailsGeneratorTest.class.getName();
+        String location = new File(".").getAbsolutePath() + "/build/classes/java/test/" + toFQResource(name) + ".class";
 
-        String location = "/Users/rdehuyss/Projects/Personal/jobrunr/jobrunr/language-support/jobrunr-kotlin-16-support/build/classes/kotlin/test/org/jobrunr/scheduling/JobSchedulerTest.class";
+        //String location = "/Users/rdehuyss/Projects/Personal/jobrunr/jobrunr/language-support/jobrunr-kotlin-16-support/build/classes/kotlin/test/org/jobrunr/scheduling/JobSchedulerTest.class";
         assertThatCode(() -> Textifier.main(new String[]{location})).doesNotThrowAnyException();
     }
 
@@ -470,7 +477,7 @@ public abstract class AbstractJobDetailsGeneratorTest {
         }
     }
 
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     void testJobLambdaCallingMultiLineStatementSystemOutPrintln() {
         final List<UUID> workStream = getWorkStream().collect(toList());
         LocalDateTime now = LocalDateTime.now();
@@ -1052,7 +1059,7 @@ public abstract class AbstractJobDetailsGeneratorTest {
                 .hasArgs(uuid2);
     }
 
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     @Because("https://github.com/jobrunr/jobrunr/issues/456")
     void createJobDetailsInMultipleThreads() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(4);
@@ -1067,8 +1074,7 @@ public abstract class AbstractJobDetailsGeneratorTest {
         thread3.start();
         thread4.start();
 
-        countDownLatch.await(250, TimeUnit.SECONDS);
-        assertThat(jobDetailsResults).hasSize(2000);
+        await().untilAsserted(() -> assertThat(jobDetailsResults).hasSize(2000));
         jobDetailsResults.keySet().stream()
                 .forEach(key -> {
                     Integer givenInput = parseInt(substringAfterLast(key, "-"));
@@ -1124,6 +1130,43 @@ public abstract class AbstractJobDetailsGeneratorTest {
         assertThat(jobDetails2)
                 .hasMethodName("runItWithObject")
                 .hasArgs(work2);
+    }
+
+    @Test
+    void testStreamWithMethodInvocationInLambda() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+
+        toJobDetails(id1, (id) -> testService.doWork(id.toString()));
+        JobDetails jobDetails = toJobDetails(id2, (id) -> testService.doWork(id.toString()));
+
+        assertThat(jobDetails)
+                .hasClass(TestService.class)
+                .hasMethodName("doWork")
+                .hasArgs(id2.toString());
+    }
+
+    @Test
+    void testCreateJobWithProxyClassImplementingInterfaceRespectsInterface() {
+        TestServiceInterface testServiceProxy = (TestServiceInterface) Proxy.newProxyInstance(TestServiceInterface.class.getClassLoader(), new Class[]{TestServiceInterface.class}, new DummyProxyInvocationHandler());
+        JobDetails jobDetails = toJobDetails(() -> testServiceProxy.doWork());
+
+        assertThat(jobDetails)
+                .hasClass(TestServiceInterface.class)
+                .hasMethodName("doWork")
+                .hasNoArgs();
+    }
+
+    @Test
+    void testCreateJobWithSyntheticClassImplementingInterfaceRespectsInterface() {
+        TestServiceInterface testService = () -> System.out.println("A Java 8 lambda is a synthetic class...");
+        assertThat(testService.getClass()).matches(Class::isSynthetic);
+
+        JobDetails jobDetails = toJobDetails(() -> testService.doWork());
+        assertThat(jobDetails)
+                .hasClass(TestServiceInterface.class)
+                .hasMethodName("doWork")
+                .hasNoArgs();
     }
 
     private Runnable createJobDetailsRunnable(CountDownLatch countDownLatch, String threadNbr, Map<String, JobDetails> jobDetailsResults) {
@@ -1189,4 +1232,13 @@ public abstract class AbstractJobDetailsGeneratorTest {
     public static void runItWithObject(TestService.Work work) {
         System.out.println("runItWithObject, work:" + work.getUuid());
     }
+
+    private static class DummyProxyInvocationHandler implements InvocationHandler {
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            System.out.println("Invoking method " + method.getName() + " on object " + proxy);
+            return null;
+        }
+    }
+
 }

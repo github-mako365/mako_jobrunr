@@ -2,6 +2,7 @@ package org.jobrunr.spring.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import jakarta.json.bind.Jsonb;
 import org.jobrunr.dashboard.JobRunrDashboardWebServer;
 import org.jobrunr.dashboard.JobRunrDashboardWebServerConfiguration;
 import org.jobrunr.jobs.details.JobDetailsGenerator;
@@ -29,8 +30,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import javax.json.bind.Jsonb;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -154,8 +153,8 @@ public class JobRunrAutoConfiguration {
     }
 
     @ConditionalOnClass(Jsonb.class)
-    @ConditionalOnResource(resources = {"classpath:META-INF/services/javax.json.bind.spi.JsonbProvider",
-            "classpath:META-INF/services/javax.json.spi.JsonProvider"})
+    @ConditionalOnResource(resources = {"classpath:META-INF/services/jakarta.json.bind.spi.JsonbProvider",
+            "classpath:META-INF/services/jakarta.json.spi.JsonProvider"})
     public static class JobRunrJsonbAutoConfiguration {
 
         @Bean(name = "jobRunrJsonMapper")

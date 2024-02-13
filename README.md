@@ -1,5 +1,5 @@
 <p align="center">
- <img src="https://user-images.githubusercontent.com/567842/80095933-1181c900-8569-11ea-85e7-14129b3f8142.png" alt="JobRunr logo"></img>
+ <a href="https://www.jobrunr.io/en/" target="_blank"><img src="https://user-images.githubusercontent.com/567842/80095933-1181c900-8569-11ea-85e7-14129b3f8142.png" alt="JobRunr logo"></img></a>
 </p>  
 <p align="center">
 The ultimate library to perform background processing on the JVM.<br/>
@@ -136,7 +136,7 @@ Configuration
 ------------
 #### Do you like to work Spring based?
 
-Add the [*jobrunr-spring-boot-starter*](https://search.maven.org/artifact/org.jobrunr/jobrunr-spring-boot-starter) to your dependencies and you're almost ready to go! Just set up your `application.properties`:
+Add the [*jobrunr-spring-boot-3-starter*](https://search.maven.org/artifact/org.jobrunr/jobrunr-spring-boot-3-starter) to your dependencies and you're almost ready to go! Just set up your `application.properties`:
 
 ```
 # the job-scheduler is enabled by default
@@ -165,7 +165,7 @@ public class JobRunrApplication {
                           .using(dataSource))
                 .useBackgroundJobServer()
                 .useDashboard()
-                .initialize();
+                .initialize().getJobScheduler();
     }
 }
 ```

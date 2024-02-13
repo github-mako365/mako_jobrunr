@@ -1,32 +1,33 @@
 package org.jobrunr.quarkus.autoconfigure.health;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
-import org.jobrunr.quarkus.autoconfigure.JobRunrConfiguration;
+import org.jobrunr.quarkus.autoconfigure.JobRunrBuildTimeConfiguration;
+import org.jobrunr.quarkus.autoconfigure.JobRunrRuntimeConfiguration;
 import org.jobrunr.server.BackgroundJobServer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 
 @Readiness
 @ApplicationScoped
 public class JobRunrHealthCheck implements HealthCheck {
 
-    JobRunrConfiguration configuration;
+    JobRunrBuildTimeConfiguration jobRunrBuildTimeConfiguration;
 
     Instance<BackgroundJobServer> backgroundJobServerInstance;
 
-    public JobRunrHealthCheck(JobRunrConfiguration configuration, Instance<BackgroundJobServer> backgroundJobServerInstance) {
-        this.configuration = configuration;
+    public JobRunrHealthCheck(JobRunrBuildTimeConfiguration jobRunrBuildTimeConfiguration, Instance<BackgroundJobServer> backgroundJobServerInstance) {
+        this.jobRunrBuildTimeConfiguration = jobRunrBuildTimeConfiguration;
         this.backgroundJobServerInstance = backgroundJobServerInstance;
     }
 
     @Override
     public HealthCheckResponse call() {
         final HealthCheckResponseBuilder healthResponseBuilder = HealthCheckResponse.named("JobRunr");
-        if (!configuration.backgroundJobServer.enabled) {
+        if (!jobRunrBuildTimeConfiguration.backgroundJobServer.enabled) {
             healthResponseBuilder
                     .up()
                     .withData("backgroundJobServer", "disabled");

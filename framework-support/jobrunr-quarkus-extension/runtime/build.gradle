@@ -8,6 +8,17 @@ plugins {
     id 'signing'
 }
 
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    options.release = 11
+}
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 processResources {
     filter ReplaceTokens, tokens: [
             "version": project.version
@@ -22,8 +33,8 @@ java {
 
 dependencies {
     api platform(project(':platform'))
-    api platform('io.quarkus:quarkus-bom:2.15.3.Final')
-    annotationProcessor 'io.quarkus:quarkus-extension-processor:2.15.3.Final'
+    api platform('io.quarkus:quarkus-bom:3.2.6.Final')
+    annotationProcessor 'io.quarkus:quarkus-extension-processor:3.2.6.Final'
 
     api project(':core')
     implementation 'io.quarkus:quarkus-core'
@@ -50,9 +61,16 @@ java {
     withSourcesJar()
 }
 
+normalization {
+    runtimeClasspath {
+        ignore '**/MANIFEST.MF'
+        ignore '**/frontend/**'
+    }
+}
+
 jar {
     manifest {
-        attributes 'Automatic-Module-Name' : 'org.jobrunr.quarkus'
+        attributes 'Automatic-Module-Name': 'org.jobrunr.quarkus'
         attributes 'Built-By': 'build.jobrunr.io'
         attributes 'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
         attributes 'Build-Version': project.version
@@ -96,7 +114,7 @@ publishing {
                 }
 
                 versionMapping {
-                    usage('java-runtime'){
+                    usage('java-runtime') {
                         fromResolutionResult()
                     }
                 }

@@ -1,11 +1,17 @@
 plugins {
     id 'java-library'
-    id 'io.quarkus' version '2.15.3.Final'
+    id 'io.quarkus' version '3.2.6.Final'
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    options.release = 11
 }
 
 dependencies {
     api platform(project(':platform'))
-    api platform('io.quarkus:quarkus-bom:2.15.3.Final')
+    api platform('io.quarkus:quarkus-bom:3.2.6.Final')
 
     api project(':framework-support:jobrunr-quarkus-extension:runtime')
     api project(':framework-support:jobrunr-quarkus-extension:deployment')
@@ -23,6 +29,13 @@ dependencies {
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+normalization {
+    runtimeClasspath {
+        ignore '**/MANIFEST.MF'
+        ignore '**/frontend/**'
+    }
 }
 
 sonar {

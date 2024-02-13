@@ -8,7 +8,6 @@ import org.jobrunr.server.BackgroundJobServerConfiguration;
 import org.jobrunr.server.JobZooKeeper;
 import org.jobrunr.server.concurrent.ConcurrentJobModificationResolver;
 import org.jobrunr.server.concurrent.UnresolvableConcurrentJobModificationException;
-import org.jobrunr.storage.BackgroundJobServerStatus;
 import org.jobrunr.storage.ConcurrentJobModificationException;
 import org.jobrunr.storage.StorageProvider;
 import org.slf4j.Logger;
@@ -24,12 +23,13 @@ import static java.util.Collections.emptyList;
 public abstract class ZooKeeperTask {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobZooKeeper.class);
-    private final JobFilterUtils jobFilterUtils;
-    private final ConcurrentJobModificationResolver concurrentJobModificationResolver;
 
     protected final JobZooKeeper jobZooKeeper;
     protected final BackgroundJobServer backgroundJobServer;
     protected final StorageProvider storageProvider;
+    protected final JobFilterUtils jobFilterUtils;
+    private final ConcurrentJobModificationResolver concurrentJobModificationResolver;
+
     protected ZooKeeperTaskInfo runInfo;
 
     protected ZooKeeperTask(JobZooKeeper jobZooKeeper, BackgroundJobServer backgroundJobServer) {
@@ -64,12 +64,16 @@ public abstract class ZooKeeperTask {
     }
 
     protected void processJobList(List<Job> jobs, Consumer<Job> jobConsumer) {
+        processJobList(jobs, jobConsumer, true);
+    }
+
+    protected void processJobList(List<Job> jobs, Consumer<Job> jobConsumer, boolean executeJobServerFilters) {
         if (!jobs.isEmpty()) {
             try {
                 jobs.forEach(jobConsumer);
-                jobFilterUtils.runOnStateElectionFilter(jobs);
+                jobFilterUtils.runOnStateElectionFilter(jobs, executeJobServerFilters);
                 storageProvider.save(jobs);
-                jobFilterUtils.runOnStateAppliedFilters(jobs);
+                jobFilterUtils.runOnStateAppliedFilters(jobs, executeJobServerFilters);
             } catch (ConcurrentJobModificationException concurrentJobModificationException) {
                 try {
                     concurrentJobModificationResolver.resolve(concurrentJobModificationException);
@@ -99,8 +103,8 @@ public abstract class ZooKeeperTask {
                 .toConcurrentJobModificationResolver(storageProvider, jobZooKeeper);
     }
 
-    BackgroundJobServerStatus serverStatus() {
-        return runInfo.getBackgroundJobServerStatus();
+    BackgroundJobServerConfiguration backgroundJobServerConfiguration() {
+        return runInfo.getBackgroundJobServerConfiguration();
     }
 
     Instant runStartTime() {
