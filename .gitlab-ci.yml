@@ -9,7 +9,7 @@
 # https://gradle.org/
 # https://github.com/gradle/gradle
 
-image: gradle:7-jdk11-alpine
+image: gradle:8-jdk17-alpine
 
 variables:
   DRONE_TAG: "2.6.3.4" #version number
@@ -54,7 +54,7 @@ build:
     - job: build dashboard frontend
 
 deploy:
-  image: gradle:7-jdk11-alpine
+  image: gradle:8-jdk17-alpine
   stage: deploy
   script:
     - 'gradle publish'
